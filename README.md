@@ -10,3 +10,9 @@ Regardless of whether you are in Windows, Mac, Ubuntu, or Red Hat, try the follo
 
     cross install latex
 
+## Notes
+The downside so far: no easy way to set $PATH in Windows 
+
+System Key: [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\
+Environment]
+Data Type: REG_EXPAND_SZ (Expanded String Value)
