@@ -1,6 +1,6 @@
 TITLE="Diction (dependencies)"
 DESCRIPTION="Dependencies for Diction"
-CHECK="$(which diction)$(ls $DESTFOLDER/diction/bin/libintl3.dll 2> $LOG)"
+CHECK="$(which diction)$(ls $INSTALLFOLDER/diction/bin/libintl3.dll 2> $LOG)"
 URL="http://www.gnu.org/software/diction/"
 DEPENDS=()
 DOWNLOAD="http://gnuwin32.sourceforge.net/downlinks/diction-dep-zip.php"
