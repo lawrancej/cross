@@ -5,4 +5,4 @@ URL="http://www.gnu.org/software/diction/"
 DEPENDS=(.diction)
 DOWNLOAD="http://gnuwin32.sourceforge.net/downlinks/diction-bin-zip.php"
 DESTFILE="diction.zip"
-COMMAND="unzip $DESTFOLDER/diction.zip -d $INSTALLFOLDER/diction"
+COMMAND="mkdir -p $INSTALLFOLDER/diction && unzip $DESTFOLDER/diction.zip -d $INSTALLFOLDER/diction"

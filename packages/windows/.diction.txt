@@ -1,8 +1,8 @@
-TITLE="Diction (deps)"
+TITLE="Diction (dependencies)"
 DESCRIPTION="Dependencies for Diction"
 CHECK="$(which diction)$(ls $DESTFOLDER/diction/bin/libintl3.dll 2> $LOG)"
 URL="http://www.gnu.org/software/diction/"
 DEPENDS=()
 DOWNLOAD="http://gnuwin32.sourceforge.net/downlinks/diction-dep-zip.php"
 DESTFILE="diction-dep.zip"
-COMMAND="unzip $DESTFOLDER/diction-dep.zip -d $INSTALLFOLDER/diction"
+COMMAND="mkdir -p $INSTALLFOLDER/diction && unzip $DESTFOLDER/diction-dep.zip -d $INSTALLFOLDER/diction"

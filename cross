@@ -50,7 +50,7 @@ INSTALLFOLDER="bin"
 LOG=".log"
 
 # TITLE="Package Name"
-# CHECK="$(which package-name)$(ls /path/to/package 2> $LOG)"
+# CHECK="$(which package-name)$(ls /path/to/package 2> $LOG)" # TODO: The command sub shouldn't be in the CHECK, but happen during the check
 # URL="http://url/to/project/"
 # DEPENDS=(package dependencies list)
 # DOWNLOAD="http://url/to/platform/specific/package/download"
@@ -60,6 +60,8 @@ LOG=".log"
 # Install a package
 install_package() {
     package_file="packages/$PLATFORM/$1.txt"
+    mkdir -p "$DESTFOLDER"
+    mkdir -p "$INSTALLFOLDER"
     # If we don't know how to handle it, pass through to an existing package manager, if possible.
     if [ ! -e "${package_file}" ]; then
         if [ -n "$INSTALLER" ]; then
@@ -69,24 +71,36 @@ install_package() {
             exit
         fi
     else
+        # Load the package file
         source "${package_file}"
+        DESTINATION="${DESTFOLDER}/${DESTFILE}"
+        # Check if it already exists. If not, download and install
         if [ -z "${CHECK}" ]; then
+            # If it has dependencies, install those first.
+            if [[ -n "${DEPENDS[@]}" ]]; then
+                $0 install "${DEPENDS[@]}"
+            fi
             echo "Getting and installing ${TITLE}..."
             echo "See: ${URL}"
             
+            # We need to curl to proceed
             if [ -z "$(which curl)" ]; then
                 echo "ERROR: You must download and install cURL first."
                 echo "Look here: http://curl.haxx.se/download.html"
                 exit
             fi
-            if [[ -n "${DOWNLOAD}" && -n "${DESTFILE}" ]]; then
-                curl -L "${DOWNLOAD}" > "${DESTFILE}"
+            # If the package has a DOWNLOAD url and a DESTINATION file, then proceed
+            if [[ -n "${DOWNLOAD}" && -n "${DESTINATION}" ]]; then
+                curl -L "${DOWNLOAD}" > "${DESTINATION}"
             fi
+            # If the package has an alternate COMMAND, run it
             if [ -n "${COMMAND}" ]; then
-                "${COMMAND}"
+                eval ${COMMAND}
+            # Otherwise, open the DESTINATION file
             else
-                file_open "${DESTFILE}"
+                file_open "${DESTINATION}"
             fi
+        # If the package exists (and we didn't say quiet), say we've got it.
         elif [[ -z "$2" ]]; then
             echo "${TITLE} is already installed."
         fi
@@ -100,7 +114,7 @@ install_packages() {
 }
 
 clean() {
-    rm -f dependencies/*.exe dependencies/*.msi dependencies/*.zip dependencies/*.dmg dependencies/*.pkg
+    rm -rf "$DESTFOLDER"
 }
 
 usage() {
