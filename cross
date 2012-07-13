@@ -1,0 +1,137 @@
+#!/bin/bash
+#    Cross: Cross-platform package manager.
+#    Copyright (C) 2012 Joey Lawrance
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Set platform
+if [[ $OSTYPE == "msys" || $OSTYPE == "cygwin" ]]; then
+    PLATFORM="windows"
+    INSTALLER=""
+elif [[ $OSTYPE == darwin* ]]; then
+    PLATFORM="macosx"
+    INSTALLER="brew"
+elif [[ $OSTYPE == "linux-gnu" && -n "$(which apt-get)" ]]; then
+    PLATFORM="linux-debian"
+    INSTALLER="apt-get"
+elif [[ $OSTYPE == "linux-gnu" && -n "$(which yum)" ]]; then
+    PLATFORM="linux-redhat"
+    INSTALLER="yum"
+else
+    echo "I do not know how to handle $OSTYPE."
+    exit
+fi
+
+# Cross-platform file open
+file_open() {
+    if [[ $PLATFORM == "windows" ]]; then
+        start "$1"
+    elif [[ $PLATFORM == linux* ]]; then
+        gnome-open "$1"
+    elif [[ $PLATFORM == "macosx" ]]; then
+        open "$1"
+    fi
+}
+
+# $DESTFOLDER is predefined
+DESTFOLDER="download"
+INSTALLFOLDER="bin"
+LOG=".log"
+
+# TITLE="Package Name"
+# CHECK="$(which package-name)$(ls /path/to/package 2> $LOG)"
+# URL="http://url/to/project/"
+# DEPENDS=(package dependencies list)
+# DOWNLOAD="http://url/to/platform/specific/package/download"
+# DESTFILE="localfilename.zip,localfilename.msi,localfilename.exe,localfilename.dmg,localfilename.pkg"
+# COMMAND="platform-specific command to use, instead of cross platform file open"
+
+# Install a package
+install_package() {
+    package_file="packages/$PLATFORM/$1.txt"
+    # If we don't know how to handle it, pass through to an existing package manager, if possible.
+    if [ ! -e "${package_file}" ]; then
+        if [ -n "$INSTALLER" ]; then
+            $INSTALLER install "$1"
+        else
+            echo "Package $1 not found."
+            exit
+        fi
+    else
+        source "${package_file}"
+        if [ -z "${CHECK}" ]; then
+            echo "Getting and installing ${TITLE}..."
+            echo "See: ${URL}"
+            
+            if [ -z "$(which curl)" ]; then
+                echo "ERROR: You must download and install cURL first."
+                echo "Look here: http://curl.haxx.se/download.html"
+                exit
+            fi
+            if [[ -n "${DOWNLOAD}" && -n "${DESTFILE}" ]]; then
+                curl -L "${DOWNLOAD}" > "${DESTFILE}"
+            fi
+            if [ -n "${COMMAND}" ]; then
+                "${COMMAND}"
+            else
+                file_open "${DESTFILE}"
+            fi
+        elif [[ -z "$2" ]]; then
+            echo "${TITLE} is already installed."
+        fi
+    fi
+}
+
+install_packages() {
+    for package in $@; do
+        install_package "${package}"
+    done
+}
+
+clean() {
+    rm -f dependencies/*.exe dependencies/*.msi dependencies/*.zip dependencies/*.dmg dependencies/*.pkg
+}
+
+usage() {
+    echo "Cross: Cross-platform pacakge manager"
+    echo
+    echo "Usage:"
+    echo "   $0 command"
+    echo "   $0 install package1 [package2 ...]"
+    echo
+    echo "Commands: "
+    echo "   list      Show list of packages"
+    echo "   clean     Remove downloaded archive files"
+    echo
+    echo "Example: $0 install libreoffice calibre"
+}
+
+if [[ $# == 0 ]]; then
+    usage
+    exit
+elif [[ $# == 1 && $1 == "list" ]]; then
+    for file in $(find packages/$PLATFORM/*.txt); do
+        source "$file"
+        printf "%-20s %s\n" "${TITLE}" "${DESCRIPTION}."
+    done
+elif [[ $# == 1 && $1 == "clean" ]]; then
+    clean
+elif [[ $# > 1 && $1 == "install" ]]; then
+    if [[ $PLATFORM == "macosx" ]]; then
+        install_package "brew" "quiet"
+    fi
+    install_packages ${@:2}
+else
+    usage
+fi

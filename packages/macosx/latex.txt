@@ -1,0 +1,7 @@
+TITLE="LaTeX"
+DESCRIPTION="Typesetting language"
+CHECK="$(which latex)"
+URL="http://www.latex-project.org/ftp.html"
+DEPENDS=()
+DOWNLOAD="http://mirror.ctan.org/systems/mac/mactex/MacTeX.pkg"
+DESTFILE="MacTeX.pkg"

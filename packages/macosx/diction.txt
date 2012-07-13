@@ -1,0 +1,8 @@
+TITLE="Diction"
+DESCRIPTION="Print wordy and commonly misused phrases in sentences"
+CHECK="$(which diction)$(ls $DESTFOLDER/diction/bin/diction.exe 2>$log)"
+URL="http://www.gnu.org/software/diction/"
+DEPENDS=(diction-dep)
+DOWNLOAD="http://gnuwin32.sourceforge.net/downlinks/diction-bin-zip.php"
+DESTFILE="diction.zip"
+COMMAND="unzip $DESTFOLDER/diction.zip -d $DESTFOLDER/diction"

@@ -1,0 +1,8 @@
+TITLE="Calibre"
+DESCRIPTION="E-Book Management"
+CHECK="$(which calibre)"
+URL="http://calibre-ebook.com/download"
+DEPENDS=()
+DOWNLOAD="http://status.calibre-ebook.com/dist/osx32"
+DESTFILE="calibre.dmg"
+COMMAND="open calibre.dmg && echo 'You have to install the command line tools for Calibre by going to Preferences->Advanced->Miscellaneous, once you open Calibre the first time.'"

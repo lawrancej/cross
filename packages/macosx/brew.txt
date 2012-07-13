@@ -1,0 +1,8 @@
+TITLE="Homebrew"
+DESCRIPTION="Mac's missing package manager"
+CHECK="$(which brew)" # Heh, heh
+URL="http://mxcl.github.com/homebrew/"
+DEPENDS=()
+DOWNLOAD=""
+DESTFILE=""
+COMMAND="/usr/bin/ruby -e \"$(/usr/bin/curl -fsSL https://raw.github.com/mxcl/homebrew/master/Library/Contributions/install_homebrew.rb)\""

@@ -1,0 +1,7 @@
+TITLE="LibreOffice"
+DESCRIPTION="Free office suite"
+CHECK="$(ls /Applications/LibreOffice 2> $LOG)"
+URL="http://www.libreoffice.org/download/"
+DEPENDS=()
+DOWNLOAD="http://download.documentfoundation.org/libreoffice/stable/3.5.5/mac/x86/LibO_3.5.5_MacOS_x86_install_en-US.dmg"
+DESTFILE="libreoffice.dmg"
