@@ -135,7 +135,7 @@ if [[ $# == 0 ]]; then
     usage
     exit
 elif [[ $# == 1 && $1 == "list" ]]; then
-    for file in $(find packages/$PLATFORM/*.txt); do
+    for file in $(find packages/$PLATFORM/*.txt 2> $LOG); do
         source "$file"
         if [[ -z "${CHECK}" ]]; then
             printf "%-15s %s\n" "${TITLE}" "${DESCRIPTION}."
