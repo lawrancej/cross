@@ -41,7 +41,7 @@ fi
 
 # Cross-platform file open
 file_open() {
-    if [[ $PLATFORM == "windows" ]]; then
+    if [[ $PLATFORM == windows* ]]; then
         start "$1"
     elif [[ $PLATFORM == linux* ]]; then
         gnome-open "$1"
@@ -112,10 +112,10 @@ install_package() {
             echo "Getting and installing ${TITLE}..."
             echo "See: ${URL}"
             
-            # If the package has a DOWNLOAD url and a DESTINATION file, ...
-            if [[ -n "${DOWNLOAD}" && -n "${DESTINATION}" ]]; then
+            # If the package has a DOWNLOAD url and a DESTFILE, use curl.
+            if [[ -n "${DOWNLOAD}" && -n "${DESTFILE}" ]]; then
                 curl_install
-            # If the package explicitly delegates, do so.
+            # If the package explicitly delegates, use the package manager.
             elif [[ -n "${PACKAGES[@]}" ]]; then
                 delegate_install "${PACKAGES[@]}"
             fi
