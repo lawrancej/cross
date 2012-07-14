@@ -88,6 +88,10 @@ curl_install() {
     # If the package has an alternate COMMAND, run it
     if [ -n "${COMMAND}" ]; then
         eval ${COMMAND}
+        echo "You should add $DESTINATION to the PATH."
+        if [[ $PLATFORM == windows* ]]; then
+            echo "Go to Computer -> System properties -> Advanced system settings -> Environment Variables..."
+        fi
     # Otherwise, open the DESTINATION file
     else
         file_open "${DESTINATION}"
