@@ -16,18 +16,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # Set platform
-if [[ $OSTYPE == "msys" || $OSTYPE == "cygwin" ]]; then
-    PLATFORM="windows"
+if [[ $OSTYPE == "msys" ]]; then
+    PLATFORM="windows-msys"
     INSTALLER=""
+elif [[ $OSTYPE == "cygwin" ]]; then
+    PLATFORM="windows-cygwin"
+    INSTALLER="/path/to/setup-1.7.exe --quiet-mode --download --local-install --packages abook" # FIXME: this is surely broken
 elif [[ $OSTYPE == darwin* ]]; then
     PLATFORM="macosx"
-    INSTALLER="brew"
+    INSTALLER="brew install"
 elif [[ $OSTYPE == "linux-gnu" && -n "$(which apt-get)" ]]; then
     PLATFORM="linux-debian"
-    INSTALLER="apt-get"
+    INSTALLER="sudo apt-get install"
 elif [[ $OSTYPE == "linux-gnu" && -n "$(which yum)" ]]; then
     PLATFORM="linux-redhat"
-    INSTALLER="yum"
+    INSTALLER="sudo yum install"
+elif [[ $OSTYPE == "linux-gnu" ]]; then
+    PLATFORM="linux-gnu"
+    INSTALLER=""
 else
     echo "I do not know how to handle $OSTYPE."
     exit
@@ -57,25 +63,48 @@ LOG=".log"
 # DESTFILE="localfilename.zip,localfilename.msi,localfilename.exe,localfilename.dmg,localfilename.pkg"
 # COMMAND="platform-specific command to use, instead of cross platform file open"
 
+# Pass package name to an existing package manager, if possible.
+delegate_install() {
+    if [ -n "$(which $INSTALLER)" ]; then
+        eval "${INSTALLER} $1"
+    else
+        echo "Unknown package(s): $1."
+    fi
+}
+
+# Install using cURL (assumes we already ran source on package file)
+curl_install() {
+    DESTINATION="${DESTFOLDER}/${DESTFILE}"
+    mkdir -p "$DESTFOLDER"
+    mkdir -p "$INSTALLFOLDER"
+    # We need to curl to proceed
+    if [ -z "$(which curl)" ]; then
+        echo "ERROR: You must download and install cURL first."
+        echo "Look here: http://curl.haxx.se/download.html"
+        exit
+    fi
+    # Proceed
+    curl -L "${DOWNLOAD}" > "${DESTINATION}"
+    # If the package has an alternate COMMAND, run it
+    if [ -n "${COMMAND}" ]; then
+        eval ${COMMAND}
+    # Otherwise, open the DESTINATION file
+    else
+        file_open "${DESTINATION}"
+    fi
+}
+
 # Install a package
 install_package() {
     package_file="packages/$PLATFORM/$1.txt"
-    mkdir -p "$DESTFOLDER"
-    mkdir -p "$INSTALLFOLDER"
-    # If we don't know how to handle it, pass through to an existing package manager, if possible.
+    # If we don't know about the package, delegate implicitly
     if [ ! -e "${package_file}" ]; then
-        if [ -n "$INSTALLER" ]; then
-            $INSTALLER install "$1"
-        else
-            echo "Package $1 not found."
-            exit
-        fi
+        delegate_install "$1"
     else
         # Load the package file
         source "${package_file}"
-        DESTINATION="${DESTFOLDER}/${DESTFILE}"
         # Check if it already exists. If not, download and install
-        if [ -z "${CHECK}" ]; then
+        if [ -z "${CHECK}" ]; then # FIXME and elsewhere
             # If it has dependencies, install those first.
             if [[ -n "${DEPENDS[@]}" ]]; then
                 $0 install "${DEPENDS[@]}"
@@ -83,22 +112,12 @@ install_package() {
             echo "Getting and installing ${TITLE}..."
             echo "See: ${URL}"
             
-            # We need to curl to proceed
-            if [ -z "$(which curl)" ]; then
-                echo "ERROR: You must download and install cURL first."
-                echo "Look here: http://curl.haxx.se/download.html"
-                exit
-            fi
-            # If the package has a DOWNLOAD url and a DESTINATION file, then proceed
+            # If the package has a DOWNLOAD url and a DESTINATION file, ...
             if [[ -n "${DOWNLOAD}" && -n "${DESTINATION}" ]]; then
-                curl -L "${DOWNLOAD}" > "${DESTINATION}"
-            fi
-            # If the package has an alternate COMMAND, run it
-            if [ -n "${COMMAND}" ]; then
-                eval ${COMMAND}
-            # Otherwise, open the DESTINATION file
-            else
-                file_open "${DESTINATION}"
+                curl_install
+            # If the package explicitly delegates, do so.
+            elif [[ -n "${PACKAGES[@]}" ]]; then
+                delegate_install "${PACKAGES[@]}"
             fi
         # If the package exists (and we didn't say quiet), say we've got it.
         elif [[ -z "$2" ]]; then

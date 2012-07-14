@@ -1,0 +1,7 @@
+TITLE="LaTeX"
+DESCRIPTION="Typesetting language"
+CHECK="$(which latex)"
+URL="http://www.latex-project.org/ftp.html"
+DEPENDS=()
+PACKAGES=("texlive-latex-recommended")
+

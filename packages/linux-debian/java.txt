@@ -1,0 +1,6 @@
+TITLE="Java"
+DESCRIPTION="Write once, run anywhere"
+CHECK="$(which java)"
+URL="http://java.com/en/download/manual.jsp"
+DEPENDS=()
+PACKAGES=("openjdk-7-jre")
