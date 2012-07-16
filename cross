@@ -18,7 +18,7 @@
 # Set platform
 if [[ $OSTYPE == "msys" ]]; then
     PLATFORM="windows-msys"
-    INSTALLER=""
+    INSTALLER="epic-win.ps1 install"
 elif [[ $OSTYPE == "cygwin" ]]; then
     PLATFORM="windows-cygwin"
     INSTALLER="/path/to/setup-1.7.exe --quiet-mode --download --local-install --packages abook" # FIXME: this is surely broken
@@ -65,10 +65,35 @@ LOG=".log"
 
 # Pass package name to an existing package manager, if possible.
 delegate_install() {
-    if [ -n "$(which $INSTALLER)" ]; then
+    if [ -n "${INSTALLER}" ]; then
         eval "${INSTALLER} $1"
     else
         echo "Unknown package(s): $1."
+    fi
+}
+
+handle_zip() {
+    mkdir -p "${INSTALLFOLDER}/$1"
+    unzip "${DESTINATION}" -d "$INSTALLFOLDER/$1"
+}
+
+handle_msi() {
+    file_open "${DESTINATION}"
+}
+
+handle_dmg() {
+    file_open "${DESTINATION}"
+}
+
+handler() {
+    if [[ "$1" == *.zip ]]; then
+        handle_zip "$1"
+    elif [[ "$1" == *.msi ]]; then
+        handle_msi
+    elif [[ "$1" == *.dmg ]]; then
+        handle_dmg
+    else
+        file_open "${DESTINATION}"
     fi
 }
 
