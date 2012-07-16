@@ -18,7 +18,7 @@
 # Set platform
 if [[ $OSTYPE == "msys" ]]; then
     PLATFORM="windows-msys"
-    INSTALLER="epic-win.ps1 install"
+    INSTALLER="powershell epic-win.ps1 install"
 elif [[ $OSTYPE == "cygwin" ]]; then
     PLATFORM="windows-cygwin"
     INSTALLER="/path/to/setup-1.7.exe --quiet-mode --download --local-install --packages abook" # FIXME: this is surely broken
