@@ -26,10 +26,10 @@ update: A way to freshen up the packages folder
 remove: A way to remove an existing package
 
 .EXAMPLE
-C:\PS> .\win-get.ps1 install calibre latex
+C:\PS> .\epic-win.ps1 install calibre latex
 
 .EXAMPLE
-C:\PS> .\win-get.ps1 list
+C:\PS> .\epic-win.ps1 list
 #>
 
 Param(
