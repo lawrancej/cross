@@ -74,6 +74,7 @@ function install_zip ($package)
     $zip_file = $shell.namespace($package["DESTINATION"])
     $destination = $shell.namespace($package["INSTALL"])
     $destination.Copyhere($zip_file.items(), 0x14)
+    
 }
 
 # Install msi file
@@ -88,7 +89,7 @@ function install_exe ($package)
     & $package["DESTINATION"]
 }
 
-# Install downloaded file
+# Install downloaded file.
 function install_file ($package)
 {
     switch -wildcard ($package["DESTINATION"])
@@ -99,14 +100,23 @@ function install_file ($package)
     }
 }
 
+# Add a path to the User Path environment variable.
 function add_path ($package)
 {
     if ($package.ContainsKey("ADDPATH")) {
-        $package["ADDPATH"] = Join-Path $package["INSTALL"] $package["ADDPATH"]
-        $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
-        $userPath += ";" + $package["ADDPATH"]
-        [Environment]::SetEnvironmentVariable("Path", $userPath, "User")
-        $env:Path += ";" + $package["ADDPATH"]
+        # Check for extracted file. If it's in a subfolder, move it up.
+        $thePath = Join-Path (Join-Path $package["INSTALL"] "*") $package["ADDPATH"]
+        if (Test-Path $thePath) {
+            mv (Join-Path (Join-Path $package["INSTALL"] "*") "*") $package["INSTALL"]
+        }
+        $thePath = Join-Path $package["INSTALL"] $package["ADDPATH"]
+        if (Test-Path $thePath) {
+            $package["ADDPATH"] = $thePath
+            $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+            $userPath += ";" + $package["ADDPATH"]
+            [Environment]::SetEnvironmentVariable("Path", $userPath, "User")
+            $env:Path += ";" + $package["ADDPATH"]
+        }
     }
 }
 

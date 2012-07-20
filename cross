@@ -21,7 +21,7 @@ if [[ $OSTYPE == "msys" ]]; then
     INSTALLER="powershell epic-win.ps1 install"
 elif [[ $OSTYPE == "cygwin" ]]; then
     PLATFORM="windows-cygwin"
-    INSTALLER="/path/to/setup-1.7.exe --quiet-mode --download --local-install --packages abook" # FIXME: this is surely broken
+    INSTALLER="/path/to/setup-1.7.exe --quiet-mode --download --local-install --packages abook" # FIXME: this is surely broken (didn't bother to install Cygwin)
 elif [[ $OSTYPE == darwin* ]]; then
     PLATFORM="macosx"
     INSTALLER="brew install"
@@ -53,7 +53,6 @@ file_open() {
 # $DESTFOLDER is predefined
 DESTFOLDER="download"
 INSTALLFOLDER="bin"
-LOG=".log"
 
 # TITLE="Package Name"
 # CHECK="$(which package-name)$(ls /path/to/package 2> $LOG)" # TODO: The command sub shouldn't be in the CHECK, but happen during the check
@@ -183,7 +182,7 @@ if [[ $# == 0 ]]; then
     usage
     exit
 elif [[ $# == 1 && $1 == "list" ]]; then
-    for file in $(find packages/$PLATFORM/*.txt 2> $LOG); do
+    for file in $(find packages/$PLATFORM/*.txt 2> /dev/null); do
         source "$file"
         if [[ -z "${CHECK}" ]]; then
             printf "%-15s %s\n" "${TITLE}" "${DESCRIPTION}."
