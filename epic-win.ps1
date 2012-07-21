@@ -138,6 +138,10 @@ function install_package ($package_name)
     {
         Write-Host "Package" $package["TITLE"] "is already installed."
     }
+    elseif (ls -EA SilentlyContinue $package["CHECK"])
+    {
+        Write-Host "Package" $package["TITLE"] "is already installed."
+    }
     # Otherwise, install the package. Booyah!
     else
     {
