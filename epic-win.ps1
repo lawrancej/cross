@@ -66,7 +66,6 @@ function download_package ($package)
 function install_zip ($package)
 {
     # Prepare install destination
-    $package["INSTALL"] = Join-Path $INSTALLFOLDER $package["INSTALL"]
     mkdir -EA SilentlyContinue $package["INSTALL"] > $null
 
     # Extract to install folder
@@ -86,12 +85,22 @@ function install_msi ($package)
 # Install exe file
 function install_exe ($package)
 {
-    & $package["DESTINATION"]
+    Start-Process $package["DESTINATION"] -WindowStyle Minimized
+    Read-Host "Once the installer completes, press enter to proceed."
 }
 
 # Install downloaded file.
 function install_file ($package)
 {
+    # If the package mentions an install folder, prepare it
+    if ($package.ContainsKey("INSTALL"))
+    {
+        # If the install folder isn't absolute, join it with the installfolder path.
+        if (![System.IO.Path]::IsPathRooted($package["INSTALL"]))
+        {
+            $package["INSTALL"] = Join-Path $INSTALLFOLDER $package["INSTALL"]
+        }
+    }
     switch -wildcard ($package["DESTINATION"])
     {
         "*zip" { install_zip $package }

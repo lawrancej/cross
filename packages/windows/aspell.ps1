@@ -6,4 +6,7 @@ $package = @{
     DEPENDS=@()
     DOWNLOAD="http://ftp.gnu.org/gnu/aspell/w32/Aspell-0-50-3-3-Setup.exe"
     DESTINATION="Aspell-Setup.exe"
+    INSTALL="C:\Program Files\Aspell"
+    ADDPATH="bin"
+    REMOVE="unins000.exe"
 }
