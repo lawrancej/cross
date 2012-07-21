@@ -195,10 +195,10 @@ elif [[ $# == 1 && $1 == "clean" ]]; then
 elif [[ $# > 1 && $1 == "install" ]]; then
     if [[ $PLATFORM == "macosx" ]]; then
         install_package "brew" "quiet"
-    elif [ ! -e ".remoteSigned" ]; then
+    elif [ ! -e ".unrestricted" ]; then
         # Enable powershell scripts to run
-        powershell -command "Start-Process powershell -verb runas -ArgumentList '-command Set-ExecutionPolicy RemoteSigned'"
-        touch .remoteSigned
+        powershell -command "Start-Process powershell -verb runas -ArgumentList '-command Set-ExecutionPolicy Unrestricted'"
+        touch .unrestricted
     fi
     install_packages ${@:2}
 else
