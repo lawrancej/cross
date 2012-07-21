@@ -55,7 +55,7 @@ DESTFOLDER="download"
 INSTALLFOLDER="bin"
 
 # TITLE="Package Name"
-# CHECK="$(which package-name)$(ls /path/to/package 2> $LOG)" # TODO: The command sub shouldn't be in the CHECK, but happen during the check
+# CHECK="$(which package-name)$(ls /path/to/package 2> /dev/null)" # TODO: The command sub shouldn't be in the CHECK, but happen during the check
 # URL="http://url/to/project/"
 # DEPENDS=(package dependencies list)
 # DOWNLOAD="http://url/to/platform/specific/package/download"
@@ -195,6 +195,10 @@ elif [[ $# == 1 && $1 == "clean" ]]; then
 elif [[ $# > 1 && $1 == "install" ]]; then
     if [[ $PLATFORM == "macosx" ]]; then
         install_package "brew" "quiet"
+    elif [ ! -e ".remoteSigned" ]; then
+        # Enable powershell scripts to run
+        powershell -command "Start-Process powershell -verb runas -ArgumentList '-command Set-ExecutionPolicy RemoteSigned'"
+        touch .remoteSigned
     fi
     install_packages ${@:2}
 else
